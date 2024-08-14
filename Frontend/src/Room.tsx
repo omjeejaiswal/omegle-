@@ -8,6 +8,7 @@ export const Room = () => {
 
     useEffect(()=> {
         // logic to init user to the room
+        
     }, [name]) 
 
     return <div>
