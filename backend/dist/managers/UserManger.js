@@ -17,7 +17,7 @@ class UserManager {
         this.initHandlers(socket);
     }
     removeUser(socketId) {
-        this.users = this.users.filter(x => x.socket.id === socketId);
+        this.users = this.users.filter(x => x.socket.id !== socketId);
         this.queue = this.queue.filter(x => x === socketId);
     }
     clearQueue() {
