@@ -7,7 +7,11 @@ import { Room } from './Room'
 function App() {
 
   return (
-    <Landing/>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={ <Landing/> } />
+        </Routes>
+      </BrowserRouter>
   )
 }
 
