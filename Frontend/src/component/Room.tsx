@@ -4,7 +4,16 @@ import { Socket, io } from "socket.io-client";
 
 const URL = "http://localhost:3000"
 
-export const Room = () => {
+export const Room = ({
+    name,
+    localAudioTrack,
+    localVideoTrack
+}: { 
+    name: string,
+    localAudioTrack: MediaStreamTrack,
+    localVideoTrack: MediaStreamTrack,
+
+}) => {
     const [ searchParams, setSearchParams] = useSearchParams();
     const name = searchParams.get('name');
     const [lobby, setLobby] = useState(true);
@@ -12,9 +21,7 @@ export const Room = () => {
     const [sendingPc, setSendingPc] = useState<null | RTCPeerConnection>(null)
     const [recevingPc, setReceivingPC] = useState<null | RTCPeerConnection>(null)
     const [remoteVideoTrack, setRemoteVideoTrack] = useState<MediaStreamTrack | null>(null)
-    const [localVideoTrack, setLocalVideoTrack] = useState<MediaStreamTrack | null>(null)
     const [remoteAudioTrack, setRemoteAudioTrack] = useState<MediaStreamTrack | null>(null)
-    const [localAudioTrack, setlocalAudioTrack] = useState<MediaStreamTrack | null>(null)
 
     useEffect(() => {
         const socket = io(URL);
@@ -22,12 +29,17 @@ export const Room = () => {
             setLobby(false);
             const pc = new RTCPeerConnection();
             setSendingPc(pc);
+            pc.addTrack(localAudioTrack)
+            pc.addTrack(localVideoTrack)
 
-            const sdp = await pc.createOffer();
-            socket.emit("offer", {
-                sdp, 
-                roomId
-            })
+            
+            pc.onicecandidate= () => {
+                const sdp = await pc.createOffer();
+                socket.emit("offer", {
+                    sdp, 
+                    roomId
+                })
+            }
         });
 
         socket.on("offer", async ({roomId, offer}) =>{
@@ -42,7 +54,7 @@ export const Room = () => {
                     setRemoteAudioTrack(track);
                 }
                 else{
-                    setRemoteAudioTrack(track);
+                    setRemoteVideoTrack(track);
                 }
             })
             socket.emit("answer", {
