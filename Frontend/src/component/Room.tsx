@@ -33,7 +33,7 @@ export const Room = ({
             pc.addTrack(localVideoTrack)
 
             
-            pc.onicecandidate= () => {
+            pc.onicecandidate= async () => {
                 const sdp = await pc.createOffer();
                 socket.emit("offer", {
                     sdp, 
