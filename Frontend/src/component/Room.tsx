@@ -59,10 +59,10 @@ export const Room = ({
             setReceivingPC(pc);
             pc.ontrack = (({track, type}) => {
                 if(type == 'audio') {
-                    setRemoteAudioTrack(track);
+                    // setRemoteAudioTrack(track);
                 }
                 else{
-                    setRemoteVideoTrack(track);
+                    // setRemoteVideoTrack(track);
                 }
             })
             socket.emit("answer", {
