@@ -22,6 +22,7 @@ class RoomManager {
     onOffer(roomId, sdp) {
         var _a;
         const user2 = (_a = this.rooms.get(roomId)) === null || _a === void 0 ? void 0 : _a.user2;
+        console.log("onoffer");
         console.log("user2 is " + user2);
         user2 === null || user2 === void 0 ? void 0 : user2.socket.emit("offer", {
             sdp,
@@ -32,6 +33,7 @@ class RoomManager {
         var _a;
         const user1 = (_a = this.rooms.get(roomId)) === null || _a === void 0 ? void 0 : _a.user1;
         console.log("user1 is " + user1);
+        console.log("onAnswer");
         user1 === null || user1 === void 0 ? void 0 : user1.socket.emit("answer", {
             sdp,
             roomId

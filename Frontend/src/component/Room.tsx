@@ -39,16 +39,27 @@ export const Room = ({
             if(localAudioTrack) {
                 pc.addTrack(localAudioTrack)
             }
-
-
             
-            pc.onicecandidate= async () => {
-                const sdp = await pc.createOffer();
-                socket.emit("offer", {
-                    sdp, 
-                    roomId
-                })
+            // pc.onicecandidate = async (e) => {
+            //     if(e.candidate) {
+            //         pc.addIceCandidate(e.candidate)
+            //     } 
+            // }
+
+            pc.onnegotiationneeded = async () => {
+                setTimeout( async () => {
+                    const sdp = await pc.createOffer();
+                    // @ts-ignore
+                    pc.setLocalDescription(sdp)
+                    socket.emit("offer", {
+                        sdp, 
+                        roomId
+                    })
+                }, 2000)
+                
             }
+
+
         });
 
         socket.on("offer", async ({roomId, sdp: remoteSdp}) =>{
@@ -56,6 +67,8 @@ export const Room = ({
             const pc = new RTCPeerConnection();
             pc.setRemoteDescription(remoteSdp)
             const sdp = await pc.createAnswer();
+            // @ts-ignore
+            pc.setLocalDescription(sdp)
             const stream = new MediaStream()
             if(remoteVideoRef.current) {
                 remoteVideoRef.current.srcObject = stream;
@@ -86,10 +99,7 @@ export const Room = ({
         socket.on("answer", ({roomId, sdp: remoteSdp}) => {
             setLobby(false);
             setSendingPc(pc => {
-                pc?.setRemoteDescription({
-                    type: "answer",
-                    sdp: remoteSdp
-                })
+                pc?.setRemoteDescription(remoteSdp)
                 return pc;
             })
         })
