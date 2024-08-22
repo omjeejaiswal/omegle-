@@ -44,9 +44,10 @@ export const Landing = () => {
             }}>
             </input>
 
-            <Link to = {`/room/?name=${name}`}>
-                Join
-            </Link>
+            <button onClick={() => {
+                setJoined(true);
+            }} > JOIN
+            </button>
         </div>
     }
 
