@@ -30,10 +30,12 @@ export class RoomManager {
         })
     }
 
-    onOffer(roomId: string, sdp : string) {
-        const user2 = this.rooms.get(roomId)?.user2;
-        console.log("onoffer")
-        console.log("user2 is " + user2)
+    onOffer(roomId: string, sdp : string, socketId: string) {
+        const room = this.rooms.get(roomId)
+        if(!room) {
+            return
+        }
+        const recievingUser = room.user1.socket.id === senderSocketid ?  room.user2:room.user1;
         user2?.socket.emit("offer", {
             sdp,
             roomId
