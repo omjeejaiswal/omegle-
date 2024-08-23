@@ -18,7 +18,7 @@ export const Room = ({
     const [lobby, setLobby] = useState(true);
     const [socket, setSocket] = useState<null | Socket>(null);
     const [sendingPc, setSendingPc] = useState<null | RTCPeerConnection>(null)
-    const [recevingPc, setReceivingPC] = useState<null | RTCPeerConnection>(null)
+    const [recevingPc, setReceivingPc] = useState<null | RTCPeerConnection>(null)
     const [remoteVideoTrack, setRemoteVideoTrack] = useState<MediaStreamTrack | null>(null)
     const [remoteAudioTrack, setRemoteAudioTrack] = useState<MediaStreamTrack | null>(null)
     const [remoteMediaStream, setremoteMediaStream] = useState<MediaStream | null>(null)
@@ -29,6 +29,7 @@ export const Room = ({
     useEffect(() => {
         const socket = io(URL);
         socket.on('send-offer', async ({roomId}) => {
+            console.log("sending offer")
             setLobby(false);
             const pc = new RTCPeerConnection();
             setSendingPc(pc);
@@ -40,29 +41,32 @@ export const Room = ({
                 pc.addTrack(localAudioTrack)
             }
             
-            // pc.onicecandidate = async (e) => {
-            //     if(e.candidate) {
-            //         pc.addIceCandidate(e.candidate)
-            //     } 
-            // }
+            pc.onicecandidate = async (e) => {
+                console.log("receiving ice candidate locally")
+                if(e.candidate) {
+                    socket.emit("add-ice-candidate",{
+                        candidate: e.candidate,
+                        type: "sender"
+                    })
+                } 
+            }
 
             pc.onnegotiationneeded = async () => {
-                setTimeout( async () => {
-                    const sdp = await pc.createOffer();
-                    // @ts-ignore
-                    pc.setLocalDescription(sdp)
-                    socket.emit("offer", {
-                        sdp, 
-                        roomId
-                    })
-                }, 2000)
-                
+                console.log("on negogtiation needed, sending offer")
+                const sdp = await pc.createOffer();
+                // @ts-ignore
+                pc.setLocalDescription(sdp)
+                socket.emit("offer", {
+                    sdp, 
+                    roomId
+                })
             }
 
 
         });
 
         socket.on("offer", async ({roomId, sdp: remoteSdp}) =>{
+            console.log("received offer")
             setLobby(false);
             const pc = new RTCPeerConnection();
             pc.setRemoteDescription(remoteSdp)
@@ -75,7 +79,19 @@ export const Room = ({
             }
             setremoteMediaStream(stream);
             // trickle ice
-            setReceivingPC(pc);
+            setReceivingPc(pc);
+
+            pc.onicecandidate = async(e) => {
+                console.log("on ice candidate on reciving sender")
+                if(e.candidate) {
+                    socket.emit("add-ice-candidate", {
+                        candidate: e.candidate,
+                        type: "receiver"
+                    })
+                }
+            }
+
+
             pc.ontrack = (({track, type}) => {
                 if(type == 'audio') {
                     // setRemoteAudioTrack(track);
@@ -101,11 +117,28 @@ export const Room = ({
             setSendingPc(pc => {
                 pc?.setRemoteDescription(remoteSdp)
                 return pc;
-            })
+            });
+            console.log("loop closed")
         })
 
         socket.on("lobby", () => {
             setLobby(true);
+        })
+
+        socket.on("add-ice-candidate", ({candidate, type}) => {
+            console.log("add ice candidate from remote")
+            console.log({candidate, type})
+            if(type == "sender") {
+                setReceivingPc(pc => {
+                    pc?.addIceCandidate(candidate)
+                    return pc;
+                })
+            } else{
+                setReceivingPc(pc => {
+                    pc?.addIceCandidate(candidate)
+                    return pc;
+                })
+            }
         })
 
         setSocket(socket)
