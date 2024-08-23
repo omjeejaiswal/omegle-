@@ -51,6 +51,9 @@ class UserManager {
         socket.on("answer", ({ sdp, roomId }) => {
             this.roomManager.onAnswer(roomId, sdp);
         });
+        socket.on("add-ice-candidate", ({ candidate, roomId, type }) => {
+            this.roomManager.onIceCandidates(roomId, socket.id, candidate, type);
+        });
     }
 }
 exports.UserManager = UserManager;
