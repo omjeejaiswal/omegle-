@@ -30,23 +30,25 @@ export class RoomManager {
         })
     }
 
-    onOffer(roomId: string, sdp : string, socketId: string) {
+    onOffer(roomId: string, sdp : string, senderSocketid: string) {
         const room = this.rooms.get(roomId)
         if(!room) {
             return
         }
-        const recievingUser = room.user1.socket.id === senderSocketid ?  room.user2:room.user1;
-        user2?.socket.emit("offer", {
-            sdp,
+        const recievingUser = room.user1.socket.id === senderSocketid ?  room.user2: room.user1;
+        recievingUser?.socket.emit("offer", {
+            sdp, 
             roomId
         })
     }
 
-    onAnswer(roomId: string, sdp : string) {
-        const user1 = this.rooms.get(roomId)?.user1;
-        console.log("user1 is " + user1)
-        console.log("onAnswer")
-        user1?.socket.emit("answer", {
+    onAnswer(roomId: string, sdp : string, senderSocketid: string) {
+        const room = this.rooms.get(roomId)
+        if(!room) {
+            return
+        }
+        const recievingUser = room.user1.socket.id === senderSocketid ?  room.user2: room.user1;
+        recievingUser?.socket.emit("answer", {
             sdp,
             roomId
         })
