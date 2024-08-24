@@ -34,10 +34,12 @@ export const Room = ({
             const pc = new RTCPeerConnection();
             setSendingPc(pc);
             if(localVideoTrack) {
+                alert("added video track")
                 pc.addTrack(localVideoTrack)
             }
 
             if(localAudioTrack) {
+                alert("added audio track")
                 pc.addTrack(localAudioTrack)
             }
             
@@ -46,7 +48,8 @@ export const Room = ({
                 if(e.candidate) {
                     socket.emit("add-ice-candidate",{
                         candidate: e.candidate,
-                        type: "sender"
+                        type: "sender",
+                        roomId 
                     })
                 } 
             }
@@ -82,17 +85,23 @@ export const Room = ({
             setReceivingPc(pc);
 
             pc.onicecandidate = async(e) => {
-                console.log("on ice candidate on reciving sender")
+                if(!e.candidate){
+                    return;
+                }
+                console.log("on ice candidate on reciving side")
                 if(e.candidate) {
                     socket.emit("add-ice-candidate", {
                         candidate: e.candidate,
-                        type: "receiver"
+                        type: "receiver",
+                        roomId
                     })
                 }
             }
 
 
-            pc.ontrack = (({track, type}) => {
+            pc.ontrack = ((e) => {
+                console.error("inside ontrack")
+                const {track, type} = e;
                 if(type == 'audio') {
                     // setRemoteAudioTrack(track);
                     // @ts-ignore
@@ -134,7 +143,7 @@ export const Room = ({
                     return pc;
                 })
             } else{
-                setReceivingPc(pc => {
+                setSendingPc(pc => {
                     pc?.addIceCandidate(candidate)
                     return pc;
                 })
