@@ -36,7 +36,7 @@ export const Room = ({
             if(localVideoTrack) {
                 console.error("added track")
                 console.log(localVideoTrack)
-                pc.addTrack( new MediaStream ([localVideoTrack]))
+                pc.addTrack(localVideoTrack)
             }
 
             if(localAudioTrack) {
@@ -44,6 +44,8 @@ export const Room = ({
                 console.log(localAudioTrack)
                 pc.addTrack(localAudioTrack)
             }
+            
+
             
             pc.onicecandidate = async (e) => {
                 console.log("receiving ice candidate locally")
@@ -67,7 +69,6 @@ export const Room = ({
                 })
             }
 
-
         });
 
         socket.on("offer", async ({roomId, sdp: remoteSdp}) =>{
@@ -86,22 +87,7 @@ export const Room = ({
             // trickle ice
             setReceivingPc(pc);
 
-            pc.onicecandidate = async(e) => {
-                if(!e.candidate){
-                    return;
-                }
-                console.log("on ice candidate on reciving side")
-                if(e.candidate) {
-                    socket.emit("add-ice-candidate", {
-                        candidate: e.candidate,
-                        type: "receiver",
-                        roomId
-                    })
-                }
-            }
-
-
-            pc.ontrack = ((e) => {
+            pc.ontrack = (e) => {
                 console.error("inside ontrack")
                 const {track, type} = e;
                 if(type == 'audio') {
@@ -116,7 +102,24 @@ export const Room = ({
                 }
                 // @ts-ignore
                 remoteVideoRef.current.play();
-            })
+            }
+
+
+            pc.onicecandidate = async(e) => {
+                if(!e.candidate){
+                    return;
+                }
+                console.log("on ice candidate on reciving side")
+                if(e.candidate) {
+                    socket.emit("add-ice-candidate", {
+                        candidate: e.candidate,
+                        type: "receiver",
+                        roomId
+                    })
+                }
+            }
+
+            
             socket.emit("answer", {
                 roomId,
                 sdp: sdp

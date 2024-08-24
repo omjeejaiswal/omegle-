@@ -77,5 +77,4 @@ export class UserManager{
             this.roomManager.onIceCandidates(roomId, socket.id, candidate, type)
        })
     }
-
 }
