@@ -87,6 +87,11 @@ export const Room = ({
             // trickle ice
             setReceivingPc(pc);
 
+            pc.onconnectionstatechange = (e) => {
+                console.error(e);
+                console.log(pc.iceConnectionState)
+            }
+            
             pc.ontrack = (e) => {
                 console.error("inside ontrack")
                 const {track, type} = e;
@@ -103,6 +108,7 @@ export const Room = ({
                 // @ts-ignore
                 remoteVideoRef.current.play();
             }
+            console.log(pc.ontrack)
 
 
             pc.onicecandidate = async(e) => {
@@ -144,11 +150,21 @@ export const Room = ({
             console.log({candidate, type})
             if(type == "sender") {
                 setReceivingPc(pc => {
+                    if(!pc){
+                        console.log("receiving pc not found")
+                    } else{
+                        console.error(pc.ontrack)
+                    }
                     pc?.addIceCandidate(candidate)
                     return pc;
                 })
             } else{
                 setSendingPc(pc => {
+                    if(!pc){
+                        console.log("sending pc not found")
+                    } else{
+                        // console.error(pc.ontrack)
+                    }
                     pc?.addIceCandidate(candidate)
                     return pc;
                 })
