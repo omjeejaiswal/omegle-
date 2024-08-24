@@ -55,11 +55,12 @@ export class RoomManager {
     }
 
     onIceCandidates(roomId: string, senderSocketid: string, candidate: any, type: "sender" | "receiver" ) {
-        console.log("-------------------")
-        console.log(roomId)
-        console.log(senderSocketid)
-        console.log(candidate)
-        console.log(type)
+        // console.log("-------------------")
+        // console.log(roomId)
+        // console.log(senderSocketid)
+        // console.log(candidate)
+        // console.log(type)
+        
         const room = this.rooms.get(roomId);
         if(!room) {
             return;

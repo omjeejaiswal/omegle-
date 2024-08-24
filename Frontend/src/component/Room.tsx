@@ -34,12 +34,14 @@ export const Room = ({
             const pc = new RTCPeerConnection();
             setSendingPc(pc);
             if(localVideoTrack) {
-                alert("added video track")
-                pc.addTrack(localVideoTrack)
+                console.error("added track")
+                console.log(localVideoTrack)
+                pc.addTrack( new MediaStream ([localVideoTrack]))
             }
 
             if(localAudioTrack) {
-                alert("added audio track")
+                console.error("added track")
+                console.log(localAudioTrack)
                 pc.addTrack(localAudioTrack)
             }
             
