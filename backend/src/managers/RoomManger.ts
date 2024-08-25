@@ -25,9 +25,9 @@ export class RoomManager {
             roomId
         })
 
-        // user2.socket.emit("send-offer", {
-        //     roomId
-        // })
+        user2.socket.emit("send-offer", {
+            roomId
+        })
     }
 
     onOffer(roomId: string, sdp : string, senderSocketid: string) {
