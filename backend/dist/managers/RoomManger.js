@@ -15,9 +15,9 @@ class RoomManager {
         user1.socket.emit("send-offer", {
             roomId
         });
-        user2.socket.emit("send-offer", {
-            roomId
-        });
+        // user2.socket.emit("send-offer", {
+        //     roomId
+        // })
     }
     onOffer(roomId, sdp, senderSocketid) {
         const room = this.rooms.get(roomId);
@@ -42,11 +42,11 @@ class RoomManager {
         });
     }
     onIceCandidates(roomId, senderSocketid, candidate, type) {
-        console.log("-------------------");
-        console.log(roomId);
-        console.log(senderSocketid);
-        console.log(candidate);
-        console.log(type);
+        // console.log("-------------------")
+        // console.log(roomId)
+        // console.log(senderSocketid)
+        // console.log(candidate)
+        // console.log(type)
         const room = this.rooms.get(roomId);
         if (!room) {
             return;

@@ -83,32 +83,21 @@ export const Room = ({
             if(remoteVideoRef.current) {
                 remoteVideoRef.current.srcObject = stream;
             }
+
             setremoteMediaStream(stream);
             // trickle ice
             setReceivingPc(pc);
 
-            pc.onconnectionstatechange = (e) => {
-                console.error(e);
-                console.log(pc.iceConnectionState)
-            }
-            
+            // pc.onconnectionstatechange = (e) => {
+            //     console.error(e);
+            //     console.log(pc.iceConnectionState)
+            // }
+            window.pcr = pc;
             pc.ontrack = (e) => {
-                console.error("inside ontrack")
-                const {track, type} = e;
-                if(type == 'audio') {
-                    // setRemoteAudioTrack(track);
-                    // @ts-ignore
-                    remoteVideoRef.current.srcObject.addTrack(track)
-                }
-                else{
-                    // setRemoteVideoTrack(track);
-                    // @ts-ignore
-                    remoteVideoRef.current.srcObject.addTrack(track)
-                }
-                // @ts-ignore
-                remoteVideoRef.current.play();
+                alert("ontrack")
+                
             }
-            console.log(pc.ontrack)
+            // console.log(pc.ontrack)
 
 
             pc.onicecandidate = async(e) => {
@@ -130,6 +119,39 @@ export const Room = ({
                 roomId,
                 sdp: sdp
             });
+
+            setTimeout(() => {
+                const track1 =  pc.getTransceivers()[0].receiver.track
+                const track2 =  pc.getTransceivers()[1].receiver.track
+                console.log(track1);
+                if(track1.kind === "video") {
+                    setRemoteAudioTrack(track1);
+                    setRemoteVideoTrack(track2);
+                } else {
+                    setRemoteAudioTrack(track2);
+                    setRemoteVideoTrack(track1);
+                }
+                // @ts-ignore
+                remoteVideoRef.current.srcObject.addTrack(track1)
+                // @ts-ignore
+                remoteVideoRef.current.srcObject.addTrack(track2)
+                // @ts-ignore
+                remoteVideoRef.current.play();
+
+                
+                // if(type == 'audio') {
+                //     // setRemoteAudioTrack(track);
+                //     // @ts-ignore
+                //     remoteVideoRef.current.srcObject.addTrack(track)
+                // }
+                // else{
+                //     // setRemoteVideoTrack(track);
+                //     // @ts-ignore
+                //     remoteVideoRef.current.srcObject.addTrack(track)
+                // }
+                // // @ts-ignore
+                // remoteVideoRef.current.play();
+            }, 5000)
         });
 
         socket.on("answer", ({roomId, sdp: remoteSdp}) => {
