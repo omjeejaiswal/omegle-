@@ -51,8 +51,6 @@ export const Landing = () => {
     }
 
     return <Room name = {name} localAudioTrack = {localAudioTrack} localVideoTrack = {localVideoTrack} />
-
-    
 }
 
 
